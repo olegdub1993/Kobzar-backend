@@ -24,5 +24,10 @@ export class FileService {
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
-    // removeFile() { }
+    removeFile(fileName) { 
+        const filePath = path.resolve(__dirname, "..", "static", fileName)
+        fs.rm(filePath,()=>{
+            console.log("removed sucsesfully")
+        })
+    }
 }

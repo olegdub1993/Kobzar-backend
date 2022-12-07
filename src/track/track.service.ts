@@ -21,7 +21,7 @@ export class TrackService {
         return track
     }
 
-    async getAll(count = 10, offset = 0): Promise<Track[]> {
+    async getAll(count = 100, offset = 0): Promise<Track[]> {
         const tracks = await this.trackModel.find().skip(offset).limit(count)
         return tracks
     }
@@ -55,9 +55,20 @@ export class TrackService {
     }
 
     async search(query: string): Promise<Track[]> {
-        const tracks = await this.trackModel.find({
+        if(!query) return []
+        const findedTracksByName = await this.trackModel.find({
             name: { $regex: new RegExp(query, "i") }
         })
-        return tracks
+        const findedTracksByArtist = await this.trackModel.find({
+            artist: { $regex: new RegExp(query, "i") }
+        })
+        findedTracksByArtist.forEach((x)=>{
+            const track=findedTracksByName.find((y)=> x._id.toString()===y._id.toString())
+            if(!track){
+                findedTracksByName.push(x)
+            }
+        })
+        return findedTracksByName
+        // return findedTracksByName
     }
 }
