@@ -3,14 +3,16 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
-import { Model } from 'mongoose';
+// import { Albom, AlbomDocument } from './../albom/schemas/albom.schema';
+import { Model, ObjectId } from 'mongoose';
 import * as uuid from "uuid"
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { MailService } from './../mail/mail.service';
+import { PlaylistService } from './../playlist/playlist.service';
 import { FileService, FileType } from 'src/file/file.service';
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>, private readonly mailService: MailService,private fileService: FileService) { }
+    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>,  private readonly playlistService: PlaylistService, private readonly mailService: MailService,private fileService: FileService) { }
     async findByEmail(email: string): Promise<any> {
         const user = await this.userModel.findOne({ email })
         if (user) { return Promise.resolve(user) }
@@ -52,25 +54,43 @@ export class UsersService {
         user.isActivated = true
         await user.save()
     }
-    async  addToLiked(userId, trackId ){
+    async  addToLiked(userId:ObjectId, type:string, itemId:any, ){
         const user = await this.userModel.findById(userId)
-        user.liked.push(trackId)
+        if(type==="track"){
+                user.liked.push(itemId)
+         }else{
+                await this.playlistService.addLikes(itemId)
+                user.likedPlaylists.push(itemId)  
+        }
         await user.save()
-        return trackId
+        return itemId
     }
-    async removeFromLiked(userId, trackId ){
+    async removeFromLiked(userId, type, itemId ){
         const user = await this.userModel.findById(userId)
-        user.liked= user.liked.filter((liked)=>liked.toString() !== trackId)
-        
+        if(type==="track"){
+        user.liked= user.liked.filter((liked)=>liked.toString() !== itemId)
+        }
+        else{
+        await this.playlistService.removeLikes(itemId)
+        user.likedPlaylists= user.likedPlaylists.filter((likedPlaylist)=>likedPlaylist.toString() !== itemId)
+        }
         await user.save()
-        return trackId
+        return itemId
     }
-    async getLiked(userId){
-        const user = await this.userModel.findById(userId).populate("liked")
-        return user.liked
+    async getLiked(userId:ObjectId,type:string){
+            if(type==="tracks"){
+             let user = await this.userModel.findById(userId).populate("liked")
+            return user.liked
+            }else{
+            let user = await this.userModel.findById(userId).populate("likedPlaylists")
+            let likedPlaylists = await this.playlistService.findSome(user.likedPlaylists)
+            return likedPlaylists  
+            }
+        //  console.log("use",user.liked)   
+        // return user.liked
     }
-    async getUserAlboms(userId){
-        const user = await this.userModel.findById(userId).populate("alboms")
-        return user.alboms
+    async getUserPlaylists(userId){
+        const user = await this.userModel.findById(userId).populate("playlists")
+        return user.playlists
     }
 }

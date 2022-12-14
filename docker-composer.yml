@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+    dev:
+        container_name: nestjs_api_dev
+        image: nestjs-api-dev:1.0.0
+        build:
+            context: .
+            target: development
+            dockerfile: ./Dockerfile
+        command: npm run start:debug
+        ports:
+            - 5000:5000
+            - 9229:9229
+        networks:
+            - nesjs-network
+        links:
+            - mongo
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        restart: unless-stopped
+    mongo:  
+        container_name: mongo
+        image: mongo
+        # environment:
+        #     MONGO_INITDB_DATABASE: kobzarDb
+        #     MONGO_INITDB_ROOT_USERNAME: admin
+        #     MONGO_INITDB_ROOT_PASSWORD: admin
+        # volumes:
+        #     - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+        #     - ./mongo-volume:/data/db   
+        ports:
+            - '27017-27019:27017-27019'
+
+    prod:
+        container_name: nestjs_api_prod
+        image: nestjs-api-prod:1.0.0
+        build:
+            context: .
+            target: production
+            dockerfile: ./Dockerfile
+        command: npm run start:prod
+        ports:
+            - 5000:5000
+            - 9229:9229
+        networks:
+            - nesjs-network
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        restart: unless-stopped
+
+networks:
+    nesjs-network:

@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, UseGuards, Req, Post, Body, Delete, Param , UseInterceptors, UploadedFiles} from '@nestjs/common';
+import { Controller, Get, UseGuards, Query, Req, Post, Body, Delete, Param , UseInterceptors, UploadedFiles} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from './../auth/guards/jwt-auth.guard';
 import { ObjectId } from 'mongoose';
-import { AlbomService } from './../albom/albom.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+
 
 @Controller('users')
 export class UsersController {
@@ -19,30 +19,30 @@ export class UsersController {
   // }
   @UseGuards(JwtAuthGuard)
   @Post("/liked")
-  addToLiked(@Req() request, @Body() dto:{id:string}) {
+  addToLiked(@Req() request, @Query("type") type: string, @Body() dto:{id:string}) {
       const userId = request.user.userId
-      return this.usersService.addToLiked(userId, dto.id)
+      return this.usersService.addToLiked(userId, type, dto.id)
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete("/liked/:id")
-  removeFromLiked(@Req() request, @Param("id") id: ObjectId) {
+  removeFromLiked(@Req() request, @Query("type") type: string,  @Param("id") id: ObjectId) {
       const userId = request.user.userId
-      return this.usersService.removeFromLiked(userId, id)
+      return this.usersService.removeFromLiked(userId, type, id)
   }
 
   @UseGuards(JwtAuthGuard)
   @Get("/liked")
-  getLiked(@Req() request) {
+  getLiked(@Req() request, @Query("type") type: string,) {
       const userId = request.user.userId
-      return this.usersService.getLiked(userId)
+      return this.usersService.getLiked(userId,type)
   }
   
   @UseGuards(JwtAuthGuard)
-  @Get("/alboms")
+  @Get("/playlists")
   getUserAlboms(@Req() request) {
       const userId = request.user.userId
-      return this.usersService.getUserAlboms(userId)
+      return this.usersService.getUserPlaylists(userId)
   }
   @UseGuards(JwtAuthGuard)
   @Post("/updateProfile")

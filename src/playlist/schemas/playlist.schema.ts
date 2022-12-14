@@ -4,10 +4,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document} from 'mongoose';
 import * as mongoose from 'mongoose'
 import { Track } from 'src/track/schemas/track.schema';
-export type AlbomDocument = Albom & Document;
+export type PlaylistDocument = Playlist & Document;
 
 @Schema()
-export class Albom {
+export class Playlist {
     @Prop()
     name: string;
 
@@ -27,4 +27,4 @@ export class Albom {
     tracks: Track[];
 }
 
-export const AlbomSchema = SchemaFactory.createForClass(Albom);
+export const PlaylistSchema = SchemaFactory.createForClass(Playlist);

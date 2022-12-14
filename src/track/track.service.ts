@@ -8,21 +8,30 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { ObjectId } from 'mongoose';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { FileService, FileType } from 'src/file/file.service';
+import { getAudioDurationInSeconds }  from 'get-audio-duration';
+import * as path from "path"
 
 @Injectable()
 export class TrackService {
     constructor(@InjectModel(Track.name) private trackModel: Model<TrackDocument>,
         @InjectModel(Comment.name) private commentModel: Model<CommentDocument>, private fileService: FileService) { }
 
-    async create(dto: CreateTrackDto, picture, audio): Promise<Track> {
+    async create(dto: CreateTrackDto, picture, audio): Promise<any> {
         const audioPath = this.fileService.createFile(FileType.AUDIO, audio)
+        const duration= await getAudioDurationInSeconds(path.resolve("dist", 'static',audioPath))
         const picturePath = this.fileService.createFile(FileType.IMAGE, picture)
-        const track = await this.trackModel.create({ ...dto, listens: 0, audio: audioPath, picture: picturePath })
+        const track = await this.trackModel.create({ ...dto, listens: 0, audio: audioPath, picture: picturePath ,duration})
         return track
     }
 
     async getAll(count = 100, offset = 0): Promise<Track[]> {
         const tracks = await this.trackModel.find().skip(offset).limit(count)
+        console.log("t",tracks)
+        // tracks.forEach(async(track)=>{
+        //     const duration= await getAudioDurationInSeconds(path.resolve("dist", 'static',track.audio))
+        //     track.duration=duration
+        //     await track.save() 
+        // })
         return tracks
     }
     async getOne(id: ObjectId): Promise<Track> {

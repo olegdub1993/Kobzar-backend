@@ -1,21 +1,21 @@
 /* eslint-disable prettier/prettier */
 import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseInterceptors, UploadedFiles, UseGuards, Req } from '@nestjs/common';
-import { AlbomService} from './albom.service';
-import { CreateAlbomDto } from './dto/create-albom.dto';
+import { PlaylistService} from './playlist.service';
+import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { ObjectId } from 'mongoose';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@Controller("alboms")
-export class AlbomController {
-    constructor(private albomService: AlbomService) { }
+@Controller("playlists")
+export class PlaylistController {
+    constructor(private albomService: PlaylistService) { }
 
     @UseGuards(JwtAuthGuard)
     @Post()
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'picture', maxCount: 1 },
         ,]))
-    create(@Req() request, @UploadedFiles() files, @Body() dto: CreateAlbomDto) {
+    create(@Req() request, @UploadedFiles() files, @Body() dto: CreatePlaylistDto) {
         const userId = request.user.userId
         let picture;
         if (files.picture){ picture=files.picture[0] }
@@ -23,16 +23,26 @@ export class AlbomController {
     }
     @UseGuards(JwtAuthGuard)
     @Post(":id")
-    addTrackToAlbom(@Req() request, @Param("id") id: ObjectId, @Body() dto:{id:string}) {
+    addTrackToPlaylist(@Req() request, @Param("id") id: ObjectId, @Body() dto:{id:string}) {
         const userId = request.user.userId
-        return this.albomService.addTrackToAlbom(userId, id, dto.id)
+        return this.albomService.addTrackToPlaylist(userId, id, dto.id)
     }
 
     @UseGuards(JwtAuthGuard)
+    @Put()
+    @UseInterceptors(FileFieldsInterceptor([
+        { name: 'picture', maxCount: 1 },
+        ,]))
+    updatePlaylist( @UploadedFiles() files,@Body() dto:any) {
+        let picture;
+        if (files.picture){ picture=files.picture[0] }
+        return this.albomService.updatePlaylist(dto,picture)
+    }
+    @UseGuards(JwtAuthGuard)
     @Put(":id")
-    removeTrackFromAlbom(@Req() request, @Param("id") id: ObjectId, @Body() dto:{id:string}) {
+    removeTrackFromPlaylist(@Req() request, @Param("id") id: ObjectId, @Body() dto:{id:string}) {
         const userId = request.user.userId
-        return this.albomService.removeTrackFromAlbom(userId, id, dto.id)
+        return this.albomService.removeTrackFromPlaylist(userId, id, dto.id)
     }
 
     @Get()
@@ -45,14 +55,15 @@ export class AlbomController {
     //     return this.trackService.search(query)
     // }
     @Get(":id")
-    getOne(@Param("id") id: ObjectId) {
+    getOne( @Param("id") id: ObjectId) {
         return this.albomService.getOne(id)
     }
     
     @UseGuards(JwtAuthGuard)
     @Delete(":id")
-    delete(@Param("id") id: ObjectId) {
-        return this.albomService.delete(id)
+    delete(@Req() request, @Param("id") id: ObjectId) {
+        const userId = request.user.userId
+        return this.albomService.delete(userId,id)
     }
 
 }

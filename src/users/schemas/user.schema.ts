@@ -4,7 +4,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 import * as mongoose from 'mongoose'
 import { Track } from 'src/track/schemas/track.schema';
-import { Albom } from 'src/albom/schemas/albom.schema';
+import { Playlist } from 'src/playlist/schemas/playlist.schema';
 export type UserDocument = User & Document;
 
 @Schema()
@@ -30,8 +30,11 @@ export class User {
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Track" }] })
     liked: Track[];
 
-    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Albom" }] })
-    alboms: Albom[];
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Playlist" }] })
+    likedPlaylists: Playlist[];
+
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Playlist" }] })
+    playlists: Playlist[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

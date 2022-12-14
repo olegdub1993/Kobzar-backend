@@ -7,6 +7,7 @@ import { AlbomSchema, Albom } from './schemas/albom.schema'
 import { FileService } from 'src/file/file.service'
 import { User } from 'src/users/schemas/user.schema';
 import { UserSchema } from './../users/schemas/user.schema';
+
 @Module({
     imports: [
     MongooseModule.forFeature([{ name: Albom.name, schema: AlbomSchema }]),

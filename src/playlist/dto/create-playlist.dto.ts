@@ -1,4 +1,4 @@
-export class CreateAlbomDto {
+export class CreatePlaylistDto {
     name:string
     username:string
     picture:string
