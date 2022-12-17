@@ -24,8 +24,9 @@ export class TrackController {
         return this.trackService.getAll(count, offset)
     }   
     @Get("/search")
-    search(@Query("query") query: string) {
-        return this.trackService.search(query)
+    search(@Query("query") query: string,@Query("type") type: string) {
+        //need to implement
+        return this.trackService.search(query,type)
     }
     @Get(":id")
     getOne(@Param("id") id: ObjectId) {

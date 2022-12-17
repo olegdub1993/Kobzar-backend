@@ -8,13 +8,17 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { ObjectId } from 'mongoose';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { FileService, FileType } from 'src/file/file.service';
+import { PlaylistService } from 'src/playlist/playlist.service';
 import { getAudioDurationInSeconds }  from 'get-audio-duration';
 import * as path from "path"
 
 @Injectable()
 export class TrackService {
     constructor(@InjectModel(Track.name) private trackModel: Model<TrackDocument>,
-        @InjectModel(Comment.name) private commentModel: Model<CommentDocument>, private fileService: FileService) { }
+        @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
+         private fileService: FileService,
+         private playlistService: PlaylistService
+         ) { }
 
     async create(dto: CreateTrackDto, picture, audio): Promise<any> {
         const audioPath = this.fileService.createFile(FileType.AUDIO, audio)
@@ -26,7 +30,7 @@ export class TrackService {
 
     async getAll(count = 100, offset = 0): Promise<Track[]> {
         const tracks = await this.trackModel.find().skip(offset).limit(count)
-        console.log("t",tracks)
+        console.log("t",tracks[0])
         // tracks.forEach(async(track)=>{
         //     const duration= await getAudioDurationInSeconds(path.resolve("dist", 'static',track.audio))
         //     track.duration=duration
@@ -63,8 +67,9 @@ export class TrackService {
         track.save()
     }
 
-    async search(query: string): Promise<Track[]> {
+    async search(query: string,type:string): Promise<any> {
         if(!query) return []
+        if(type==="tracks"){
         const findedTracksByName = await this.trackModel.find({
             name: { $regex: new RegExp(query, "i") }
         })
@@ -77,7 +82,26 @@ export class TrackService {
                 findedTracksByName.push(x)
             }
         })
-        return findedTracksByName
-        // return findedTracksByName
-    }
+        return ({tracks: findedTracksByName,playlists:[]})
+    }else if(type==="playlists"){
+        const playlists = await this.playlistService.getSearchedPlaylists(query)
+         return ({tracks:[],playlists})
+
+     }else {
+        const findedTracksByName = await this.trackModel.find({
+            name: { $regex: new RegExp(query, "i") }
+        })
+        const findedTracksByArtist = await this.trackModel.find({
+            artist: { $regex: new RegExp(query, "i") }
+        })
+        findedTracksByArtist.forEach((x)=>{
+            const track=findedTracksByName.find((y)=> x._id.toString()===y._id.toString())
+            if(!track){
+                findedTracksByName.push(x)
+            }
+        })
+        const playlists = await this.playlistService.getSearchedPlaylists(query)
+        return ({tracks:findedTracksByName,playlists})
+     }
+}
 }

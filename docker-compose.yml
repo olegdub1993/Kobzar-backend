@@ -66,6 +66,7 @@ services:
       - mongodb_data_container:/data/db
 
   api: 
+    container_name: nestjs_api_dev
     build: .
     volumes:
       - .:/app
@@ -78,6 +79,12 @@ services:
     restart: unless-stopped  
     depends_on:
       - mongodb
+#     networks:
+#       project_network:
+       
+# networks:
+#   project_network:
+#     external: true
 
 volumes:
   mongodb_data_container:

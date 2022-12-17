@@ -6,12 +6,19 @@ import { MongooseModule } from '@nestjs/mongoose'
 import { TrackSchema, Track } from './schemas/track.schema'
 import { Comment, CommentSchema } from './schemas/comment.schema'
 import { FileService } from 'src/file/file.service'
+import { PlaylistService } from 'src/playlist/playlist.service'
+import {PlaylistSchema, Playlist } from './../playlist/schemas/playlist.schema';
+import { User,UserSchema } from 'src/users/schemas/user.schema';
+
+
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Track.name, schema: TrackSchema }]),
-        MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }])
+        MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
+        MongooseModule.forFeature([{ name: Playlist.name, schema: PlaylistSchema }]),
+        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     ],
     controllers: [TrackController],
-    providers: [TrackService, FileService]
+    providers: [TrackService, PlaylistService, FileService]
 })
 export class TrackModule { }

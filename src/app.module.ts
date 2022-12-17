@@ -16,7 +16,7 @@ import { ConfigModule } from '@nestjs/config';
         }),
         ConfigModule.forRoot(),   
         MongooseModule.forRoot('mongodb://localhost:27017/'),
-        //   MongooseModule.forRoot('mongodb://mongodb:27017'),
+        // MongooseModule.forRoot('mongodb://mongodb:27017'),
         //MongooseModule.forRoot('mongodb+srv://admin:admin@cluster0.aqmxgwp.mongodb.net/?retryWrites=true&w=majority'),
          TrackModule, FileModule, AuthModule, UsersModule, PlaylistModule]
     // controllers: [AppContr],

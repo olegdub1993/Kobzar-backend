@@ -30,7 +30,7 @@ export class PlaylistService {
     if(picture){
       picturePath = this.fileService.createFile(FileType.IMAGE, picture)
     }
-    const playlist = await this.playlistModel.findById(dto.id)
+    const playlist = await this.playlistModel.findById(dto.id).populate("tracks")
     playlist.name=dto.name
     playlist.description=dto.description
     if(picturePath){playlist.picture=picturePath}
@@ -45,6 +45,12 @@ export class PlaylistService {
     // let albomtracks=tracks.map((t,index)=>({...t,index}))
     // console.log(albomtracks)
     return playlist
+   }
+   async getSearchedPlaylists(query: string): Promise<Playlist[]> {
+    const playlists = await this.playlistModel.find({
+        name: { $regex: new RegExp(query, "i") }
+    }).populate('tracks')
+    return playlists
    }
    async addTrackToPlaylist(userId, albomId, trackId): Promise<Playlist> {
     const user = await this.userModel.findById(userId)
