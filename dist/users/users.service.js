@@ -42,6 +42,10 @@ let UsersService = class UsersService {
             return user;
         return undefined;
     }
+    async getUser(id) {
+        const user = await this.userModel.findById(id);
+        return user;
+    }
     async create(email, password, username) {
         const hashPassword = await bcrypt.hash(password, 3);
         const activationLink = uuid.v4();
@@ -51,11 +55,18 @@ let UsersService = class UsersService {
     }
     async updateProfile(userId, dto, picture) {
         const user = await this.userModel.findById(userId);
-        const picturePath = this.fileService.createFile(file_service_1.FileType.IMAGE, picture);
-        if (user.picture) {
-            this.fileService.removeFile(user.picture);
+        const playlists = user.playlists;
+        let picturePath = "";
+        if (picture) {
+            picturePath = this.fileService.createFile(file_service_1.FileType.IMAGE, picture);
+            if (user.picture) {
+                this.fileService.removeFile(user.picture);
+            }
         }
-        user.picture = picturePath;
+        await this.playlistService.updateUserDataForPlaylist(playlists, dto.username, picturePath);
+        if (picturePath) {
+            user.picture = picturePath;
+        }
         user.username = dto.username;
         await user.save();
         return user;

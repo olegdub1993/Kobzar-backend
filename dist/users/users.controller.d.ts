@@ -35,5 +35,6 @@ export declare class UsersController {
         _id: import("mongoose").Types.ObjectId;
     }, never>[]>;
     getUserAlboms(request: any): Promise<import("../playlist/schemas/playlist.schema").Playlist[]>;
+    getUser(id: ObjectId): Promise<any>;
     updateProfile(files: any, dto: any, request: any): Promise<any>;
 }

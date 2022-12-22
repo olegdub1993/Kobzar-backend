@@ -38,7 +38,6 @@ let TrackService = class TrackService {
     }
     async getAll(count = 100, offset = 0) {
         const tracks = await this.trackModel.find().skip(offset).limit(count);
-        console.log("t", tracks[0]);
         return tracks;
     }
     async getOne(id) {

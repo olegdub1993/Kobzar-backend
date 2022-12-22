@@ -19,24 +19,37 @@ export class PlaylistService {
         if(picture){
           picturePath = this.fileService.createFile(FileType.IMAGE, picture)
         }
-        const playlist = await this.playlistModel.create({ ...dto, picture: picturePath, likes:0 })
         const user = await this.userModel.findById(userId)
+        const playlist = await this.playlistModel.create({ ...dto, picture: picturePath, likes:0, userId, userPicture:user.picture })
         user.playlists.push(playlist._id)
         await user.save()
         return playlist
   }
   async updatePlaylist(dto:any, picture ): Promise<Playlist> {
+    const playlist = await this.playlistModel.findById(dto.id).populate("tracks")
     let picturePath=""
     if(picture){
       picturePath = this.fileService.createFile(FileType.IMAGE, picture)
+      if(playlist.picture){
+        this.fileService.removeFile(playlist.picture)
+       }
     }
-    const playlist = await this.playlistModel.findById(dto.id).populate("tracks")
     playlist.name=dto.name
     playlist.description=dto.description
     if(picturePath){playlist.picture=picturePath}
     await playlist.save()
     return playlist
-}
+   }
+    async  updateUserDataForPlaylist(arrayOfId, username, userPicturePath){
+        const playlists = await this.playlistModel.find({
+            '_id': { $in: arrayOfId}
+        })
+        playlists.forEach(async(playlist)=>{
+            playlist.username=username
+            if(userPicturePath){playlist.userPicture=userPicturePath}
+            await playlist.save()
+        })
+    }
    async getOne(id: ObjectId): Promise<Playlist> {
     const playlist = await this.playlistModel.findById(id).populate("tracks")
     // // let tracksWithIndex = albom.tracks.map((t,index)=>({...t,index})) 

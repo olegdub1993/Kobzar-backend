@@ -17,6 +17,8 @@ export class UsersController {
   //   const userId = request.user.userId
   //   return this.usersService.findOne(userId)
   // }
+
+
   @UseGuards(JwtAuthGuard)
   @Post("/liked")
   addToLiked(@Req() request, @Query("type") type: string, @Body() dto:{id:string}) {
@@ -44,12 +46,18 @@ export class UsersController {
       const userId = request.user.userId
       return this.usersService.getUserPlaylists(userId)
   }
+
+  @Get(":id")
+  getUser(@Param("id") id: ObjectId) {
+    return this.usersService.getUser(id)
+  }
   @UseGuards(JwtAuthGuard)
   @Post("/updateProfile")
   @UseInterceptors(FileFieldsInterceptor([{ name: 'picture', maxCount: 1 }]))
   updateProfile(@UploadedFiles() files, @Body() dto: any, @Req() request) {
     const userId = request.user.userId
-      const { picture } = files
-      return this.usersService.updateProfile(userId, dto, picture[0])
+    let picture;
+    if (files.picture){ picture=files.picture[0] }
+      return this.usersService.updateProfile(userId, dto, picture)
   }
   }

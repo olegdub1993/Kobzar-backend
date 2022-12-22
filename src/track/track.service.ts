@@ -30,7 +30,6 @@ export class TrackService {
 
     async getAll(count = 100, offset = 0): Promise<Track[]> {
         const tracks = await this.trackModel.find().skip(offset).limit(count)
-        console.log("t",tracks[0])
         // tracks.forEach(async(track)=>{
         //     const duration= await getAudioDurationInSeconds(path.resolve("dist", 'static',track.audio))
         //     track.duration=duration

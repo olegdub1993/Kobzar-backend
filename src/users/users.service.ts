@@ -23,6 +23,10 @@ export class UsersService {
         if (user) return user
         return undefined
     }
+    async getUser(id): Promise<any | undefined> {
+        const user = await this.userModel.findById(id)
+         return user
+    }
     // async findOne(id: number): Promise<CreateUserDto | undefined> {
     //     const user = this.users.find((user) => user._id === id)
     //     if (user) { return Promise.resolve(user) }
@@ -37,11 +41,16 @@ export class UsersService {
     }
     async updateProfile(userId, dto, picture ): Promise<any> {
         const user = await this.userModel.findById(userId)
-        const picturePath = this.fileService.createFile(FileType.IMAGE, picture)
-        if(user.picture){
+        const playlists=user.playlists
+        let picturePath=""
+        if(picture){
+          picturePath = this.fileService.createFile(FileType.IMAGE, picture)
+          if(user.picture){
             this.fileService.removeFile(user.picture)
+           }
         }
-        user.picture = picturePath
+        await this.playlistService.updateUserDataForPlaylist(playlists, dto.username, picturePath)
+        if(picturePath){user.picture = picturePath}
         user.username=dto.username
         await user.save()
         return user

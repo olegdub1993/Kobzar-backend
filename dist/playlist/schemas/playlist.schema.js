@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlaylistSchema = exports.Playlist = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose = require("mongoose");
+const user_schema_1 = require("../../users/schemas/user.schema");
 let Playlist = class Playlist {
 };
 __decorate([
@@ -32,12 +33,20 @@ __decorate([
 ], Playlist.prototype, "picture", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Playlist.prototype, "userPicture", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], Playlist.prototype, "likes", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Track" }] }),
     __metadata("design:type", Array)
 ], Playlist.prototype, "tracks", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose.Schema.Types.ObjectId, ref: "User" }),
+    __metadata("design:type", user_schema_1.User)
+], Playlist.prototype, "userId", void 0);
 Playlist = __decorate([
     (0, mongoose_1.Schema)()
 ], Playlist);
