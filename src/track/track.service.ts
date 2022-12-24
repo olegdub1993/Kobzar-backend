@@ -11,13 +11,15 @@ import { FileService, FileType } from 'src/file/file.service';
 import { PlaylistService } from 'src/playlist/playlist.service';
 import { getAudioDurationInSeconds }  from 'get-audio-duration';
 import * as path from "path"
+import { UsersService } from './../users/users.service';
 
 @Injectable()
 export class TrackService {
     constructor(@InjectModel(Track.name) private trackModel: Model<TrackDocument>,
         @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
          private fileService: FileService,
-         private playlistService: PlaylistService
+         private playlistService: PlaylistService,
+         private usersService: UsersService
          ) { }
 
     async create(dto: CreateTrackDto, picture, audio): Promise<any> {
@@ -81,12 +83,16 @@ export class TrackService {
                 findedTracksByName.push(x)
             }
         })
-        return ({tracks: findedTracksByName,playlists:[]})
+        return ({tracks: findedTracksByName,playlists:[],users:[]})
     }else if(type==="playlists"){
         const playlists = await this.playlistService.getSearchedPlaylists(query)
-         return ({tracks:[],playlists})
+         return ({tracks:[],playlists,users:[]})
 
-     }else {
+     }else if(type==="users"){
+        const users = await this.usersService.getSearchedUsers(query)
+         return ({tracks:[],playlists:[], users})
+     }
+     else {
         const findedTracksByName = await this.trackModel.find({
             name: { $regex: new RegExp(query, "i") }
         })
@@ -100,7 +106,8 @@ export class TrackService {
             }
         })
         const playlists = await this.playlistService.getSearchedPlaylists(query)
-        return ({tracks:findedTracksByName,playlists})
+        const users = await this.usersService.getSearchedUsers(query)
+        return ({tracks:findedTracksByName,playlists, users})
      }
 }
 }

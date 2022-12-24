@@ -10,6 +10,8 @@ export declare class User {
     picture: string;
     isActivated: boolean;
     activationLink: string;
+    subscriptions: User[];
+    subscribers: User[];
     liked: Track[];
     likedPlaylists: Playlist[];
     playlists: Playlist[];

@@ -6,12 +6,14 @@ import { ObjectId } from 'mongoose';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { FileService } from 'src/file/file.service';
 import { PlaylistService } from 'src/playlist/playlist.service';
+import { UsersService } from './../users/users.service';
 export declare class TrackService {
     private trackModel;
     private commentModel;
     private fileService;
     private playlistService;
-    constructor(trackModel: Model<TrackDocument>, commentModel: Model<CommentDocument>, fileService: FileService, playlistService: PlaylistService);
+    private usersService;
+    constructor(trackModel: Model<TrackDocument>, commentModel: Model<CommentDocument>, fileService: FileService, playlistService: PlaylistService, usersService: UsersService);
     create(dto: CreateTrackDto, picture: any, audio: any): Promise<any>;
     getAll(count?: number, offset?: number): Promise<Track[]>;
     getOne(id: ObjectId): Promise<Track>;

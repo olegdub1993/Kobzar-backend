@@ -32,7 +32,7 @@ let AuthService = class AuthService {
             throw new common_2.HttpException(`User with ${email} already exist`, 403);
         }
         const user = await this.userService.create(email, password, username);
-        const userDto = { id: user._id, email: user.email, username: user.username, isActivated: user.isActivated, liked: user.liked, likedPlaylists: user.likedPlaylists, picture: user.picture };
+        const userDto = { id: user._id, email: user.email, username: user.username, isActivated: user.isActivated, liked: user.liked, likedPlaylists: user.likedPlaylists, picture: user.picture, subscriptions: user.subscriptions, subscribers: user.subscribers };
         const tokens = this.generateTokens(userDto, values);
         await this.saveToken(user.id, tokens.refreshToken);
         return Object.assign(Object.assign({}, tokens), { user: userDto });
@@ -46,7 +46,7 @@ let AuthService = class AuthService {
         if (!isPassEquals) {
             throw new common_2.HttpException(`Неправильний пароль або логін`, 403);
         }
-        const userDto = { id: user._id, email: user.email, username: user.username, isActivated: user.isActivated, liked: user.liked, likedPlaylists: user.likedPlaylists, picture: user.picture };
+        const userDto = { id: user._id, email: user.email, username: user.username, isActivated: user.isActivated, liked: user.liked, likedPlaylists: user.likedPlaylists, picture: user.picture, subscriptions: user.subscriptions, subscribers: user.subscribers };
         const tokens = this.generateTokens(userDto, values);
         await this.saveToken(user.id, tokens.refreshToken);
         return Object.assign(Object.assign({}, tokens), { user: userDto });
@@ -61,7 +61,7 @@ let AuthService = class AuthService {
             throw new common_2.HttpException(`Unauthorized`, 401);
         }
         const user = await this.userService.findOne(userData.id);
-        const userDto = { id: user._id, email: user.email, username: user.username, isActivated: user.isActivated, liked: user.liked, likedPlaylists: user.likedPlaylists, picture: user.picture };
+        const userDto = { id: user._id, email: user.email, username: user.username, isActivated: user.isActivated, liked: user.liked, likedPlaylists: user.likedPlaylists, picture: user.picture, subscriptions: user.subscriptions, subscribers: user.subscribers };
         const tokens = this.generateTokens(userDto, values);
         await this.saveToken(user.id, tokens.refreshToken);
         return Object.assign(Object.assign({}, tokens), { user: userDto });

@@ -21,6 +21,14 @@ let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
     }
+    createSubscription(request, dto) {
+        const userId = request.user.userId;
+        return this.usersService.createSubscription(userId, dto.id);
+    }
+    deleteSubscription(request, id) {
+        const userId = request.user.userId;
+        return this.usersService.deleteSubscription(userId, id);
+    }
     addToLiked(request, type, dto) {
         const userId = request.user.userId;
         return this.usersService.addToLiked(userId, type, dto.id);
@@ -33,7 +41,7 @@ let UsersController = class UsersController {
         const userId = request.user.userId;
         return this.usersService.getLiked(userId, type);
     }
-    getUserAlboms(request) {
+    getUserPlaylists(request) {
         const userId = request.user.userId;
         return this.usersService.getUserPlaylists(userId);
     }
@@ -49,6 +57,24 @@ let UsersController = class UsersController {
         return this.usersService.updateProfile(userId, dto, picture);
     }
 };
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)("/subscribe"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "createSubscription", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Delete)("/subscribe/:id"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "deleteSubscription", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)("/liked"),
@@ -85,7 +111,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], UsersController.prototype, "getUserAlboms", null);
+], UsersController.prototype, "getUserPlaylists", null);
 __decorate([
     (0, common_1.Get)(":id"),
     __param(0, (0, common_1.Param)("id")),

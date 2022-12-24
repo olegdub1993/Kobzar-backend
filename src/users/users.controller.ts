@@ -17,6 +17,19 @@ export class UsersController {
   //   const userId = request.user.userId
   //   return this.usersService.findOne(userId)
   // }
+  @UseGuards(JwtAuthGuard)
+  @Post("/subscribe")
+  createSubscription(@Req() request, @Body() dto:{id:string}) {
+      const userId = request.user.userId
+      return this.usersService.createSubscription(userId, dto.id)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete("/subscribe/:id")
+  deleteSubscription(@Req() request, @Param("id") id: ObjectId) {
+      const userId = request.user.userId
+      return this.usersService.deleteSubscription(userId, id)
+  }
 
 
   @UseGuards(JwtAuthGuard)
@@ -42,7 +55,7 @@ export class UsersController {
   
   @UseGuards(JwtAuthGuard)
   @Get("/playlists")
-  getUserAlboms(@Req() request) {
+  getUserPlaylists(@Req() request) {
       const userId = request.user.userId
       return this.usersService.getUserPlaylists(userId)
   }

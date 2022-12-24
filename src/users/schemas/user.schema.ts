@@ -27,6 +27,12 @@ export class User {
     @Prop()
     activationLink: string;
 
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] })
+    subscriptions: User[];
+
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] })
+    subscribers: User[];
+
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Track" }] })
     liked: Track[];
 

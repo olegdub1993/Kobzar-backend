@@ -22,12 +22,14 @@ const file_service_1 = require("../file/file.service");
 const playlist_service_1 = require("../playlist/playlist.service");
 const get_audio_duration_1 = require("get-audio-duration");
 const path = require("path");
+const users_service_1 = require("./../users/users.service");
 let TrackService = class TrackService {
-    constructor(trackModel, commentModel, fileService, playlistService) {
+    constructor(trackModel, commentModel, fileService, playlistService, usersService) {
         this.trackModel = trackModel;
         this.commentModel = commentModel;
         this.fileService = fileService;
         this.playlistService = playlistService;
+        this.usersService = usersService;
     }
     async create(dto, picture, audio) {
         const audioPath = this.fileService.createFile(file_service_1.FileType.AUDIO, audio);
@@ -77,11 +79,15 @@ let TrackService = class TrackService {
                     findedTracksByName.push(x);
                 }
             });
-            return ({ tracks: findedTracksByName, playlists: [] });
+            return ({ tracks: findedTracksByName, playlists: [], users: [] });
         }
         else if (type === "playlists") {
             const playlists = await this.playlistService.getSearchedPlaylists(query);
-            return ({ tracks: [], playlists });
+            return ({ tracks: [], playlists, users: [] });
+        }
+        else if (type === "users") {
+            const users = await this.usersService.getSearchedUsers(query);
+            return ({ tracks: [], playlists: [], users });
         }
         else {
             const findedTracksByName = await this.trackModel.find({
@@ -97,7 +103,8 @@ let TrackService = class TrackService {
                 }
             });
             const playlists = await this.playlistService.getSearchedPlaylists(query);
-            return ({ tracks: findedTracksByName, playlists });
+            const users = await this.usersService.getSearchedUsers(query);
+            return ({ tracks: findedTracksByName, playlists, users });
         }
     }
 };
@@ -108,7 +115,8 @@ TrackService = __decorate([
     __metadata("design:paramtypes", [mongoose_2.Model,
         mongoose_2.Model,
         file_service_1.FileService,
-        playlist_service_1.PlaylistService])
+        playlist_service_1.PlaylistService,
+        users_service_1.UsersService])
 ], TrackService);
 exports.TrackService = TrackService;
 //# sourceMappingURL=track.service.js.map

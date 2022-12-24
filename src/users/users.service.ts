@@ -24,14 +24,11 @@ export class UsersService {
         return undefined
     }
     async getUser(id): Promise<any | undefined> {
-        const user = await this.userModel.findById(id)
-         return user
+        const user = await (await this.userModel.findById(id).populate("subscriptions")).populate('subscribers')
+        let playlists = await this.playlistService.findSome(user.playlists)
+        user.playlists=playlists
+        return user
     }
-    // async findOne(id: number): Promise<CreateUserDto | undefined> {
-    //     const user = this.users.find((user) => user._id === id)
-    //     if (user) { return Promise.resolve(user) }
-    //     return undefined
-    // }
     async create(email, password,username): Promise<any> {
         const hashPassword = await bcrypt.hash(password, 3)
         const activationLink = uuid.v4()
@@ -74,6 +71,24 @@ export class UsersService {
         await user.save()
         return itemId
     }
+    async  createSubscription(userId:any, userId2:any, ){
+        const user = await this.userModel.findById(userId)
+                user.subscriptions.push(userId2)
+                await user.save()
+        const user2 = await this.userModel.findById(userId2)
+                user2.subscribers.push(userId)
+                await user2.save()
+        return  user2._id
+    }
+    async deleteSubscription(userId:any, userId2:any  ){
+        const user = await this.userModel.findById(userId)
+         user.subscriptions=user.subscriptions.filter((subscription)=>subscription.toString() !== userId2.toString())
+         await user.save()
+        const user2 = await this.userModel.findById(userId2)
+         user2.subscribers=user2.subscribers.filter((subscriber)=>subscriber.toString() !== userId.toString())
+         await user2.save()
+        return user2._id
+    }
     async removeFromLiked(userId, type, itemId ){
         const user = await this.userModel.findById(userId)
         if(type==="track"){
@@ -101,5 +116,11 @@ export class UsersService {
     async getUserPlaylists(userId){
         const user = await this.userModel.findById(userId).populate("playlists")
         return user.playlists
+    }
+    async getSearchedUsers(query){
+       const users=  await this.userModel.find({
+            username: { $regex: new RegExp(query, "i") }
+        })
+        return users
     }
 }

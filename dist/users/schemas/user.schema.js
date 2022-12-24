@@ -39,6 +39,14 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "activationLink", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] }),
+    __metadata("design:type", Array)
+], User.prototype, "subscriptions", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] }),
+    __metadata("design:type", Array)
+], User.prototype, "subscribers", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Track" }] }),
     __metadata("design:type", Array)
 ], User.prototype, "liked", void 0);

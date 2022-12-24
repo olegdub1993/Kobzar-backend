@@ -17,6 +17,8 @@ const file_service_1 = require("../file/file.service");
 const playlist_service_1 = require("../playlist/playlist.service");
 const playlist_schema_1 = require("./../playlist/schemas/playlist.schema");
 const user_schema_1 = require("../users/schemas/user.schema");
+const users_service_1 = require("../users/users.service");
+const mail_service_1 = require("./../mail/mail.service");
 let TrackModule = class TrackModule {
 };
 TrackModule = __decorate([
@@ -28,7 +30,7 @@ TrackModule = __decorate([
             mongoose_1.MongooseModule.forFeature([{ name: user_schema_1.User.name, schema: user_schema_1.UserSchema }]),
         ],
         controllers: [track_conttroller_1.TrackController],
-        providers: [track_service_1.TrackService, playlist_service_1.PlaylistService, file_service_1.FileService]
+        providers: [track_service_1.TrackService, playlist_service_1.PlaylistService, users_service_1.UsersService, file_service_1.FileService, mail_service_1.MailService]
     })
 ], TrackModule);
 exports.TrackModule = TrackModule;
