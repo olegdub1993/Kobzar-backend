@@ -11,9 +11,9 @@ export declare class UsersController {
         id: string;
     }): Promise<any>;
     removeFromLiked(request: any, type: string, id: ObjectId): Promise<any>;
-    getLiked(request: any, type: string): Promise<Omit<import("../playlist/schemas/playlist.schema").Playlist & import("mongoose").Document<any, any, any> & {
+    getLiked(request: any, type: string): Promise<import("../track/schemas/track.schema").Track[] | Omit<import("../playlist/schemas/playlist.schema").Playlist & import("mongoose").Document<any, any, any> & {
         _id: import("mongoose").Types.ObjectId;
-    }, never>[] | import("../track/schemas/track.schema").Track[]>;
+    }, never>[]>;
     getUserPlaylists(request: any): Promise<import("../playlist/schemas/playlist.schema").Playlist[]>;
     getUser(id: ObjectId): Promise<any>;
     updateProfile(files: any, dto: any, request: any): Promise<any>;

@@ -11,12 +11,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
 
-  // @UseGuards(JwtAuthGuard)
-  // @Get("/me")
-  // me(@Req() request) {
-  //   const userId = request.user.userId
-  //   return this.usersService.findOne(userId)
-  // }
+//   @UseGuards(JwtAuthGuard)
+//   @Get("/me")
+//   me(@Req() request) {
+//     const userId = request.user.userId
+//     return this.usersService.findOne(userId)
+//   }
   @UseGuards(JwtAuthGuard)
   @Post("/subscribe")
   createSubscription(@Req() request, @Body() dto:{id:string}) {
