@@ -12,7 +12,7 @@ import { PlaylistService } from './../playlist/playlist.service';
 import { FileService, FileType } from 'src/file/file.service';
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>,  private readonly playlistService: PlaylistService, private readonly mailService: MailService,private fileService: FileService) { }
+    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>, private readonly playlistService: PlaylistService, private readonly mailService: MailService, private fileService: FileService) { }
     async findByEmail(email: string): Promise<any> {
         const user = await this.userModel.findOne({ email })
         if (user) { return Promise.resolve(user) }
@@ -26,29 +26,29 @@ export class UsersService {
     async getUser(id): Promise<any | undefined> {
         const user = await (await this.userModel.findById(id).populate("subscriptions")).populate('subscribers')
         let playlists = await this.playlistService.findSome(user.playlists)
-        user.playlists=playlists
+        user.playlists = playlists
         return user
     }
-    async create(email, password,username): Promise<any> {
+    async create(email, password, username): Promise<any> {
         const hashPassword = await bcrypt.hash(password, 3)
         const activationLink = uuid.v4()
-        const user = await this.userModel.create({ email, username, password: hashPassword, activationLink, isActivated: false, picture:"" })
+        const user = await this.userModel.create({ email, username, password: hashPassword, activationLink, isActivated: false, picture: "" })
         await this.mailService.sendActivationMail(email, `${process.env.API_URL}/auth/activate/${activationLink}`)
         return user
     }
-    async updateProfile(userId, dto, picture ): Promise<any> {
+    async updateProfile(userId, dto, picture): Promise<any> {
         const user = await this.userModel.findById(userId)
-        const playlists=user.playlists
-        let picturePath=""
-        if(picture){
-          picturePath = this.fileService.createFile(FileType.IMAGE, picture)
-          if(user.picture){
-            this.fileService.removeFile(user.picture)
-           }
+        const playlists = user.playlists
+        let picturePath = ""
+        if (picture) {
+            picturePath = this.fileService.createFile(FileType.IMAGE, picture)
+            if (user.picture) {
+                this.fileService.removeFile(user.picture)
+            }
         }
         await this.playlistService.updateUserDataForPlaylist(playlists, dto.username, picturePath)
-        if(picturePath){user.picture = picturePath}
-        user.username=dto.username
+        if (picturePath) { user.picture = picturePath }
+        user.username = dto.username
         await user.save()
         return user
     }
@@ -60,65 +60,65 @@ export class UsersService {
         user.isActivated = true
         await user.save()
     }
-    async  addToLiked(userId:ObjectId, type:string, itemId:any, ){
+    async addToLiked(userId: ObjectId, type: string, itemId: any,) {
         const user = await this.userModel.findById(userId)
-        if(type==="track"){
-                user.liked.push(itemId)
-         }else{
-                await this.playlistService.addLikes(itemId)
-                user.likedPlaylists.push(itemId)  
+        if (type === "track") {
+            user.liked.push(itemId)
+        } else {
+            await this.playlistService.addLikes(itemId)
+            user.likedPlaylists.push(itemId)
         }
         await user.save()
         return itemId
     }
-    async  createSubscription(userId:any, userId2:any, ){
+    async createSubscription(userId: any, userId2: any,) {
         const user = await this.userModel.findById(userId)
-                user.subscriptions.push(userId2)
-                await user.save()
+        user.subscriptions.push(userId2)
+        await user.save()
         const user2 = await this.userModel.findById(userId2)
-                user2.subscribers.push(userId)
-                await user2.save()
-        return  user2._id
-    }
-    async deleteSubscription(userId:any, userId2:any  ){
-        const user = await this.userModel.findById(userId)
-         user.subscriptions=user.subscriptions.filter((subscription)=>subscription.toString() !== userId2.toString())
-         await user.save()
-        const user2 = await this.userModel.findById(userId2)
-         user2.subscribers=user2.subscribers.filter((subscriber)=>subscriber.toString() !== userId.toString())
-         await user2.save()
+        user2.subscribers.push(userId)
+        await user2.save()
         return user2._id
     }
-    async removeFromLiked(userId, type, itemId ){
+    async deleteSubscription(userId: any, userId2: any) {
         const user = await this.userModel.findById(userId)
-        if(type==="track"){
-        user.liked= user.liked.filter((liked)=>liked.toString() !== itemId)
+        user.subscriptions = user.subscriptions.filter((subscription) => subscription.toString() !== userId2.toString())
+        await user.save()
+        const user2 = await this.userModel.findById(userId2)
+        user2.subscribers = user2.subscribers.filter((subscriber) => subscriber.toString() !== userId.toString())
+        await user2.save()
+        return user2._id
+    }
+    async removeFromLiked(userId, type, itemId) {
+        const user = await this.userModel.findById(userId)
+        if (type === "track") {
+            user.liked = user.liked.filter((liked) => liked.toString() !== itemId)
         }
-        else{
-        await this.playlistService.removeLikes(itemId)
-        user.likedPlaylists= user.likedPlaylists.filter((likedPlaylist)=>likedPlaylist.toString() !== itemId)
+        else {
+            await this.playlistService.removeLikes(itemId)
+            user.likedPlaylists = user.likedPlaylists.filter((likedPlaylist) => likedPlaylist.toString() !== itemId)
         }
         await user.save()
         return itemId
     }
-    async getLiked(userId:ObjectId,type:string){
-            if(type==="tracks"){
-             let user = await this.userModel.findById(userId).populate("liked")
+    async getLiked(userId: ObjectId, type: string) {
+        if (type === "tracks") {
+            let user = await this.userModel.findById(userId).populate("liked")
             return user.liked
-            }else{
+        } else {
             let user = await this.userModel.findById(userId).populate("likedPlaylists")
             let likedPlaylists = await this.playlistService.findSome(user.likedPlaylists)
-            return likedPlaylists  
-            }
+            return likedPlaylists
+        }
         //  console.log("use",user.liked)   
         // return user.liked
     }
-    async getUserPlaylists(userId){
+    async getUserPlaylists(userId) {
         const user = await this.userModel.findById(userId).populate("playlists")
         return user.playlists
     }
-    async getSearchedUsers(query){
-       const users=  await this.userModel.find({
+    async getSearchedUsers(query) {
+        const users = await this.userModel.find({
             username: { $regex: new RegExp(query, "i") }
         })
         return users

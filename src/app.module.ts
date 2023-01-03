@@ -11,14 +11,14 @@ import * as  path from 'path';
 import { ConfigModule } from '@nestjs/config';
 @Module({
     imports: [
-    ServeStaticModule.forRoot({
+        ServeStaticModule.forRoot({
             rootPath: path.resolve(__dirname, 'static'),
         }),
-        ConfigModule.forRoot(),   
-       // MongooseModule.forRoot('mongodb://localhost:27017/'),
+        ConfigModule.forRoot(),
+        //MongooseModule.forRoot('mongodb://localhost:27017/'),
         // MongooseModule.forRoot('mongodb://mongodb:27017'),
         MongooseModule.forRoot('mongodb+srv://admin:admin@cluster0.aqmxgwp.mongodb.net/?retryWrites=true&w=majority'),
-         TrackModule, FileModule, AuthModule, UsersModule, PlaylistModule]
+        TrackModule, FileModule, AuthModule, UsersModule, PlaylistModule]
     // controllers: [AppContr],
 })
 export class AppModule { }
