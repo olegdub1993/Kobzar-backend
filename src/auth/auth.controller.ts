@@ -17,9 +17,10 @@ export class AuthController {
       userAgent: request.headers['user-agent']
     })
     response.cookie('refreshToken', userData.refreshToken, {
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      
+      maxAge: 30 * 24 * 60 * 60 * 1000, 
       httpOnly: true,
+      sameSite: 'none',
+      secure: true 
     });
     return response.send(userData);
   }
@@ -38,6 +39,8 @@ export class AuthController {
     response.cookie('refreshToken', userData.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
+      sameSite: 'none',
+      secure: true 
     });
     return response.send(userData);
   }
@@ -52,6 +55,8 @@ export class AuthController {
     response.cookie('refreshToken', userData.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
+      sameSite: 'none',
+      secure: true 
     });
     return response.send(userData);
   }
