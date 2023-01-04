@@ -13,6 +13,7 @@ const start = async () => {
         app.use(cookieParser());
         app.enableCors({ credentials: true, origin: process.env.CLIENT_URL });
         await app.listen(PORT, () => console.log(`Server  started on port ${PORT}`));
+        console.log(process.env.CLIENT_URL);
     }
     catch (error) {
         console.log(error);
