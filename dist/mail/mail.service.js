@@ -24,15 +24,15 @@ let MailService = class MailService {
             }
         });
     }
-    async sendActivationMail(to, link) {
+    async sendActivationMail(to, link, subject, message) {
         await this.transporter.sendMail({
             from: process.env.SMTP_USER,
             to,
-            subject: "Активація акаунта на " + process.env.API_URL,
+            subject: subject,
             text: "",
             html: `
             <div>
-            <h1>Для активації акаунта перейдіть по посиланню:</h1>
+            <h1>${message}</h1>
              <a href="${link}">${link}</a>
              <h2 style="color:blue; font-size:48px">Слава <span style="color:yellow;">Україні!</span></h2>
             </div>`

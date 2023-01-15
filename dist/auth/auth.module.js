@@ -15,12 +15,13 @@ const jwt_strategy_1 = require("./strategies/jwt.strategy");
 const mongoose_1 = require("@nestjs/mongoose");
 const refreshToken_schema_1 = require("./schemas/refreshToken.schema");
 const refreshToken_schema_2 = require("./schemas/refreshToken.schema");
+const mail_service_1 = require("./../mail/mail.service");
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
     (0, common_1.Module)({
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, mail_service_1.MailService],
         imports: [mongoose_1.MongooseModule.forFeature([{ name: refreshToken_schema_1.Token.name, schema: refreshToken_schema_2.TokenSchema }]), users_module_1.UsersModule]
     })
 ], AuthModule);

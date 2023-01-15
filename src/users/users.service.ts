@@ -33,7 +33,7 @@ export class UsersService {
         const hashPassword = await bcrypt.hash(password, 3)
         const activationLink = uuid.v4()
         const user = await this.userModel.create({ email, username, password: hashPassword, activationLink, isActivated: false, picture: "" })
-        await this.mailService.sendActivationMail(email, `${process.env.API_URL}/auth/activate/${activationLink}`)
+        await this.mailService.sendActivationMail(email, `${process.env.API_URL}/auth/activate/${activationLink}`, `Активація акаунта на ${process.env.API_URL}`, "Для активації акаунта перейдіть по посиланню:")
         return user
     }
     async updateProfile(userId, dto, picture): Promise<any> {

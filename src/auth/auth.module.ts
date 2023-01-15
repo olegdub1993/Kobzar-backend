@@ -7,11 +7,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Token } from './schemas/refreshToken.schema';
 import { TokenSchema } from './schemas/refreshToken.schema';
-
+import { MailService } from './../mail/mail.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy,MailService],
   imports: [MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]), UsersModule]
 })
 

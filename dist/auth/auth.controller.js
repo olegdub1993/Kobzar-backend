@@ -16,8 +16,9 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const create_login_dto_1 = require("./dto/create-login.dto");
-const create_registration_dto_1 = require("./dto/create-registration.dto");
+const create_email_dto_1 = require("./dto/create-email.dto");
 const users_service_1 = require("./../users/users.service");
+const create_registration_dto_1 = require("./dto/create-registration.dto");
 let AuthController = class AuthController {
     constructor(authService, userService) {
         this.authService = authService;
@@ -52,6 +53,15 @@ let AuthController = class AuthController {
             secure: true
         });
         return response.send(userData);
+    }
+    async sendPasswordLink(dto) {
+        return this.authService.sendPasswordLink(dto.email);
+    }
+    async forgotPassword(id, token) {
+        return this.authService.validateUser(id, token);
+    }
+    async changePassword(id, token, dto) {
+        return this.authService.changePassword(id, token, dto.password);
     }
     async refreshToken(request, response, ip) {
         const { refreshToken } = request.cookies;
@@ -102,6 +112,30 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, String, create_login_dto_1.CreateLoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.Post)("/sendPasswordLink"),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_email_dto_1.CreateEmailDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "sendPasswordLink", null);
+__decorate([
+    (0, common_1.Get)("/forgotPassword/:id/:token"),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, common_1.Param)("token")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, common_1.Post)("/changePassword/:id/:token"),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, common_1.Param)("token")),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "changePassword", null);
 __decorate([
     (0, common_1.Get)("/refresh"),
     __param(0, (0, common_1.Req)()),

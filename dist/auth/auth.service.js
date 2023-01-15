@@ -21,15 +21,17 @@ const common_2 = require("@nestjs/common");
 const mongoose_1 = require("mongoose");
 const mongoose_2 = require("@nestjs/mongoose");
 const bcrypt = require("bcryptjs");
+const mail_service_1 = require("../mail/mail.service");
 let AuthService = class AuthService {
-    constructor(tokenModel, userService) {
+    constructor(tokenModel, mailService, userService) {
         this.tokenModel = tokenModel;
+        this.mailService = mailService;
         this.userService = userService;
     }
     async registration(email, password, username, values) {
         const canditate = await this.userService.findByEmail(email);
         if (canditate) {
-            throw new common_2.HttpException(`User with ${email} already exist`, 403);
+            throw new common_2.HttpException(`Користувач з поштою ${email} вже існує`, 403);
         }
         const user = await this.userService.create(email, password, username);
         const userDto = { id: user._id, email: user.email, username: user.username, isActivated: user.isActivated, liked: user.liked, likedPlaylists: user.likedPlaylists, picture: user.picture, subscriptions: user.subscriptions, subscribers: user.subscribers };
@@ -104,11 +106,41 @@ let AuthService = class AuthService {
         const tokenData = await this.tokenModel.findOne({ refreshToken });
         return tokenData;
     }
+    async sendPasswordLink(email) {
+        const user = await this.userService.findByEmail(email);
+        if (!user) {
+            throw new common_2.HttpException(`Користувача з такою поштою не існує`, 403);
+        }
+        const token = (0, jsonwebtoken_1.sign)({ id: user._id }, process.env.REFRESH_SECRET, { expiresIn: "2m" });
+        await this.saveToken(user.id, token);
+        await this.mailService.sendActivationMail(email, `${process.env.CLIENT_URL}/forgotPassword/${user._id}/${token}`, `Зміна паролю на ${process.env.API_URL}`, "Це посилання активне лише 2 хвилини:");
+        return "Link successfully sended to email";
+    }
+    async validateUser(id, token) {
+        const userData = this.validateRefreshToken(token);
+        const tokenFromDb = await this.findToken(token);
+        if (!userData || !tokenFromDb) {
+            throw new common_2.HttpException("Посилання не дійсне", 401);
+        }
+        return userData;
+    }
+    async changePassword(id, token, password) {
+        const userData = this.validateRefreshToken(token);
+        const tokenFromDb = await this.findToken(token);
+        if (!userData || !tokenFromDb) {
+            throw new common_2.HttpException("Токен вже непридатний, згенеруйте нове посилання", 401);
+        }
+        const hashPassword = await bcrypt.hash(password, 3);
+        const user = await this.userService.findOne(id);
+        user.password = hashPassword;
+        await user.save();
+        return { email: user.email, password };
+    }
 };
 AuthService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_2.InjectModel)(refreshToken_schema_1.Token.name)),
-    __metadata("design:paramtypes", [mongoose_1.Model, users_service_1.UsersService])
+    __metadata("design:paramtypes", [mongoose_1.Model, mail_service_1.MailService, users_service_1.UsersService])
 ], AuthService);
 exports.AuthService = AuthService;
 //# sourceMappingURL=auth.service.js.map

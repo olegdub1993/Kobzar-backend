@@ -26,7 +26,7 @@ AppModule = __decorate([
                 rootPath: path.resolve(__dirname, 'static'),
             }),
             config_1.ConfigModule.forRoot(),
-            mongoose_1.MongooseModule.forRoot('mongodb+srv://admin:admin@cluster0.aqmxgwp.mongodb.net/?retryWrites=true&w=majority'),
+            mongoose_1.MongooseModule.forRoot('mongodb://localhost:27017/'),
             track_module_1.TrackModule, file_module_1.FileModule, auth_module_1.AuthModule, users_module_1.UsersModule, playlist_module_1.PlaylistModule
         ]
     })

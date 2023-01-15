@@ -3,8 +3,9 @@ import { Controller, Req, Ip, Body, Post, Param, Delete, Get, Res } from '@nestj
 import { AuthService } from './auth.service';
 import { CreateLoginDto } from './dto/create-login.dto';
 import { CreateRefreshTokenDto } from './dto/create-refreshToken.dto';
-import { CreateRegistrationDto } from './dto/create-registration.dto';
+import { CreateEmailDto } from './dto/create-email.dto';
 import { UsersService } from './../users/users.service';
+import { CreateRegistrationDto } from './dto/create-registration.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +45,22 @@ export class AuthController {
     });
     return response.send(userData);
   }
-  @Get("/refresh")
+
+  @Post("/sendPasswordLink")
+  async sendPasswordLink(@Body() dto:CreateEmailDto) {
+      return this.authService.sendPasswordLink(dto.email)
+    }
+
+  @Get("/forgotPassword/:id/:token")
+  async forgotPassword(@Param("id") id, @Param("token") token) {
+        return this.authService.validateUser(id,token)
+      }
+ @Post("/changePassword/:id/:token")
+      async changePassword(@Param("id") id, @Param("token") token,@Body() dto:{password:string}) {
+            return this.authService.changePassword(id,token,dto.password)
+          }
+          
+ @Get("/refresh")
  async refreshToken(@Req() request, @Res() response, @Ip() ip: string,) {
 
     const {refreshToken}=request.cookies

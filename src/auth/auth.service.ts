@@ -8,17 +8,18 @@ import { HttpException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
+import { MailService } from 'src/mail/mail.service';
 
 
 @Injectable()
 export class AuthService {
     // private refreshTokens: RefreshToken[] = [];
-    constructor(@InjectModel(Token.name) private tokenModel: Model<TokenDocument>, private readonly userService: UsersService,) { }
+    constructor(@InjectModel(Token.name) private tokenModel: Model<TokenDocument>,private readonly mailService: MailService,  private readonly userService: UsersService,) { }
 
     async registration(email: string, password: string, username:string, values: { userAgent: string, ipAddress: string }): Promise<{ accessToken: string, refreshToken: string,  user: UserDto}>{
         const canditate = await this.userService.findByEmail(email)
         if (canditate) {
-            throw new HttpException(`User with ${email} already exist`, 403);
+            throw new HttpException(`Користувач з поштою ${email} вже існує`, 403);
         }
         const user = await this.userService.create(email, password, username)
         const userDto={ id: user._id, email: user.email, username:user.username, isActivated: user.isActivated, liked:user.liked, likedPlaylists:user.likedPlaylists,  picture:user.picture,subscriptions:user.subscriptions, subscribers:user.subscribers}
@@ -29,7 +30,7 @@ export class AuthService {
 
     async login(email: string, password: string, values: { userAgent: string, ipAddress: string }): Promise<{ accessToken: string, refreshToken: string,  user: UserDto}> {
         const user = await this.userService.findByEmail(email)
-        if (!user) {        throw new HttpException(`Неправильний пароль або логін`, 403); }
+        if (!user) { throw new HttpException(`Неправильний пароль або логін`, 403); }
         const isPassEquals=await bcrypt.compare(password,user.password)
         if (!isPassEquals) {  throw new HttpException(`Неправильний пароль або логін`, 403);  }
         const userDto={ id: user._id, email: user.email,username:user.username, isActivated: user.isActivated, liked:user.liked, likedPlaylists:user.likedPlaylists, picture:user.picture,subscriptions:user.subscriptions, subscribers:user.subscribers}
@@ -122,6 +123,37 @@ export class AuthService {
         const tokenData = await this.tokenModel.findOne({refreshToken})
         return tokenData
     }
+    async sendPasswordLink(email:string): Promise<any> {
+        const user = await this.userService.findByEmail(email)
+        if (!user) {throw new HttpException(`Користувача з такою поштою не існує`, 403); }
+        const token = sign({id:user._id }, process.env.REFRESH_SECRET, { expiresIn: "2m" })
+        await this.saveToken(user.id, token)
+        await this.mailService.sendActivationMail(email, `${process.env.CLIENT_URL}/forgotPassword/${user._id}/${token}`, `Зміна паролю на ${process.env.API_URL}`, "Це посилання активне лише 2 хвилини:")
+        return  "Link successfully sended to email"
+    }
+    async validateUser(id:any, token:any): Promise<any> {
+        const userData= this.validateRefreshToken(token)
+        const tokenFromDb = await this.findToken(token)
+
+        if (!userData||!tokenFromDb) {
+            throw new HttpException("Посилання не дійсне", 401);
+        }
+        return    userData 
+    }
+    async changePassword(id:any, token:any, password:string): Promise<any> {
+        const userData= this.validateRefreshToken(token)
+        const tokenFromDb = await this.findToken(token)
+
+        if (!userData||!tokenFromDb) {
+            throw new HttpException("Токен вже непридатний, згенеруйте нове посилання", 401);
+        }
+        const hashPassword = await bcrypt.hash(password, 3)
+        const user = await this.userService.findOne(id)
+        user.password=hashPassword
+        await user.save()
+         return  {email:user.email, password}
+    }
+    
     // async logout(refreshStr): Promise<void> {
     //     const refreshToken = await this.retrieveRefreshToken(refreshStr)
     //     if (!refreshToken) {
