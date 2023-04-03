@@ -17,7 +17,7 @@ export class AlbomService {
     async create(userId, dto: CreateAlbomDto,  picture ): Promise<Albom> {
         let picturePath
         if(picture){
-          picturePath = this.fileService.createFile(FileType.IMAGE, picture)
+          [picturePath]=await this.fileService.createFile(FileType.IMAGE, picture)
         }
         const albom = await this.albomModel.create({ ...dto, picture: picturePath, likes:0 })
         const user = await this.userModel.findById(userId)

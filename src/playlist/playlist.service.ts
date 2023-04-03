@@ -17,7 +17,7 @@ export class PlaylistService {
     async create(userId, dto: CreatePlaylistDto,  picture ): Promise<Playlist> {
         let picturePath=""
         if(picture){
-          picturePath = this.fileService.createFile(FileType.IMAGE, picture)
+          [picturePath] = await this.fileService.createFile(FileType.IMAGE, picture)
         }
         const user = await this.userModel.findById(userId)
         const playlist = await this.playlistModel.create({ ...dto, picture: picturePath, likes:0, userId, userPicture:user.picture })
@@ -29,9 +29,9 @@ export class PlaylistService {
     const playlist = await this.playlistModel.findById(dto.id).populate("tracks")
     let picturePath=""
     if(picture){
-      picturePath = this.fileService.createFile(FileType.IMAGE, picture)
+      [picturePath] = await this.fileService.createFile(FileType.IMAGE, picture)
       if(playlist.picture){
-        this.fileService.removeFile(playlist.picture)
+         await this.fileService.removeFile(playlist.picture)
        }
     }
     playlist.name=dto.name
@@ -110,7 +110,7 @@ async findSome(arrayOfId) {
     async delete(userId:ObjectId, id): Promise<ObjectId> {
         const playlist = await this.playlistModel.findByIdAndDelete(id)
         if(playlist.picture){
-            this.fileService.removeFile(playlist.picture)
+        await this.fileService.removeFile(playlist.picture)
         }
         const user = await this.userModel.findById(userId)
         user.playlists= user.playlists.filter((playlist)=>playlist.toString() !== id)

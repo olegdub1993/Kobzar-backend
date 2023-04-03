@@ -41,9 +41,9 @@ export class UsersService {
         const playlists = user.playlists
         let picturePath = ""
         if (picture) {
-            picturePath = this.fileService.createFile(FileType.IMAGE, picture)
+            [picturePath] =await this.fileService.createFile(FileType.IMAGE, picture)
             if (user.picture) {
-                this.fileService.removeFile(user.picture)
+               await  this.fileService.removeFile(user.picture)
             }
         }
         await this.playlistService.updateUserDataForPlaylist(playlists, dto.username, picturePath)

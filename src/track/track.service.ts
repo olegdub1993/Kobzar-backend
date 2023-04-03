@@ -23,10 +23,12 @@ export class TrackService {
          ) { }
 
     async create(dto: CreateTrackDto, picture, audio): Promise<any> {
-        const audioPath = this.fileService.createFile(FileType.AUDIO, audio)
-        const duration= await getAudioDurationInSeconds(path.resolve("dist", 'static',audioPath))
-        const picturePath = this.fileService.createFile(FileType.IMAGE, picture)
-        const track = await this.trackModel.create({ ...dto, listens: 0, audio: audioPath, picture: picturePath ,duration})
+        const [localAudioPath, absoluteAudioPath] =await this.fileService.createFile(FileType.AUDIO, audio)
+        // in case of saving files on server
+        // const duration= await getAudioDurationInSeconds(path.resolve("dist", 'static',audioPath))
+        const duration= await getAudioDurationInSeconds(absoluteAudioPath)
+        const [localImagePath] = await this.fileService.createFile(FileType.IMAGE, picture)
+        const track = await this.trackModel.create({ ...dto, listens: 0, audio: localAudioPath, picture: localImagePath ,duration})
         return track
     }
 
