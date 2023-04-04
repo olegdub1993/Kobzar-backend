@@ -10,6 +10,7 @@ import * as bcrypt from 'bcryptjs';
 import { MailService } from './../mail/mail.service';
 import { PlaylistService } from './../playlist/playlist.service';
 import { FileService, FileType } from 'src/file/file.service';
+import { Interval } from '@nestjs/schedule';
 @Injectable()
 export class UsersService {
     constructor(@InjectModel(User.name) private userModel: Model<UserDocument>, private readonly playlistService: PlaylistService, private readonly mailService: MailService, private fileService: FileService) { }
@@ -122,5 +123,9 @@ export class UsersService {
             username: { $regex: new RegExp(query, "i") }
         })
         return users
+    }
+    @Interval(840000)
+    handleInterval() {
+     console.log("ping")
     }
 }
