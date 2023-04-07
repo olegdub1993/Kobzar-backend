@@ -124,8 +124,4 @@ export class UsersService {
         })
         return users
     }
-    @Interval(840000)
-    handleInterval() {
-     console.log("ping")
-    }
 }

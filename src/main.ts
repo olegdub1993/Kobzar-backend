@@ -8,11 +8,12 @@ const start = async () => {
     try {
         const PORT = process.env.PORT || 5000
         const app = await NestFactory.create(AppModule);
-        app.useGlobalPipes(new ValidationPipe());
+        app.useGlobalPipes(new ValidationPipe({
+            forbidUnknownValues: false
+        }));
         app.use(cookieParser());
         app.enableCors({credentials:true,origin:process.env.CLIENT_URL});
         await app.listen(PORT, () => console.log(`Server  started on port ${PORT}`))
-        console.log(process.env.CLIENT_URL);
     } catch (error) {
         console.log(error);
     }
