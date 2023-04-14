@@ -12,28 +12,36 @@ import { PlaylistService } from 'src/playlist/playlist.service';
 import { getAudioDurationInSeconds }  from 'get-audio-duration';
 import * as path from "path"
 import { UsersService } from './../users/users.service';
+import { Artist, ArtistDocument } from 'src/artist/schemas/artist.schema';
 
 @Injectable()
 export class TrackService {
     constructor(@InjectModel(Track.name) private trackModel: Model<TrackDocument>,
-        @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
+              @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
+              @InjectModel(Artist.name) private artistModel: Model<ArtistDocument>,
          private fileService: FileService,
          private playlistService: PlaylistService,
          private usersService: UsersService
          ) { }
 
-    async create(dto: CreateTrackDto, picture, audio): Promise<any> {
+    async create({artists, ...dto}: CreateTrackDto, picture, audio): Promise<any> {
         const [localAudioPath, absoluteAudioPath] =await this.fileService.createFile(FileType.AUDIO, audio)
         // in case of saving files on server
         // const duration= await getAudioDurationInSeconds(path.resolve("dist", 'static',audioPath))
         const duration= await getAudioDurationInSeconds(absoluteAudioPath)
         const [localImagePath] = await this.fileService.createFile(FileType.IMAGE, picture)
-        const track = await this.trackModel.create({ ...dto, listens: 0, audio: localAudioPath, picture: localImagePath ,duration})
+        let artistsParsed= JSON.parse(artists);
+        const track = await this.trackModel.create({ ...dto, artists:artistsParsed, listens: 0, audio: localAudioPath, picture: localImagePath ,duration})
+        artistsParsed.forEach(async id => {
+        const artist = await this.artistModel.findById(id)
+        artist.tracks.push(track._id)
+        await artist.save()   
+        });
         return track
     }
 
     async getAll(count = 100, offset = 0): Promise<Track[]> {
-        const tracks = await this.trackModel.find().skip(offset).limit(count)
+        const tracks = await this.trackModel.find().skip(offset).limit(count).populate("artists")
         // tracks.forEach(async(track)=>{
         //     const duration= await getAudioDurationInSeconds(path.resolve("dist", 'static',track.audio))
         //     track.duration=duration
@@ -42,7 +50,7 @@ export class TrackService {
         return tracks
     }
     async getOne(id: ObjectId): Promise<Track> {
-        const track = await this.trackModel.findById(id).populate("comments")
+        const track = await this.trackModel.findById(id).populate("comments").populate("artists")
         return track
     }
 

@@ -4,6 +4,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 import { Comment } from './comment.schema';
 import * as mongoose from 'mongoose'
+import { Artist } from 'src/artist/schemas/artist.schema';
 export type TrackDocument = Track & Document;
 
 @Schema()
@@ -13,6 +14,9 @@ export class Track {
 
     @Prop()
     artist: string;
+
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artist" }] })
+    artists: Artist[];
 
     @Prop()
     category: string;

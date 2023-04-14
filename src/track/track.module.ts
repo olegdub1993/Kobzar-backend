@@ -11,6 +11,7 @@ import {PlaylistSchema, Playlist } from './../playlist/schemas/playlist.schema';
 import { User,UserSchema } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { MailService } from './../mail/mail.service';
+import { Artist, ArtistSchema } from 'src/artist/schemas/artist.schema';
 
 
 @Module({
@@ -19,6 +20,7 @@ import { MailService } from './../mail/mail.service';
         MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
         MongooseModule.forFeature([{ name: Playlist.name, schema: PlaylistSchema }]),
         MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+        MongooseModule.forFeature([{ name: Artist.name, schema: ArtistSchema }]),
     ],
     controllers: [TrackController],
     providers: [TrackService, PlaylistService, UsersService, FileService, MailService]

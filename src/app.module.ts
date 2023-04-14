@@ -10,6 +10,7 @@ import { PlaylistModule } from './playlist/playlist.module';
 import * as  path from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ArtistModule } from './artist/artist.module';
 @Module({
     imports: [
         ServeStaticModule.forRoot({
@@ -20,7 +21,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         // MongooseModule.forRoot('mongodb://localhost:27017/'),
         // MongooseModule.forRoot('mongodb://mongodb:27017'),
         MongooseModule.forRoot('mongodb+srv://admin:admin@cluster0.aqmxgwp.mongodb.net/?retryWrites=true&w=majority'),
-        TrackModule, FileModule, AuthModule, UsersModule, PlaylistModule]
+        TrackModule, FileModule, AuthModule, UsersModule, PlaylistModule,ArtistModule]
     // controllers: [AppContr],
 })
 export class AppModule { }

@@ -33,7 +33,7 @@ export class AuthService {
         if (!user) { throw new HttpException(`Неправильний пароль або логін`, 403); }
         const isPassEquals=await bcrypt.compare(password,user.password)
         if (!isPassEquals) {  throw new HttpException(`Неправильний пароль або логін`, 403);  }
-        const userDto={ id: user._id, email: user.email,username:user.username, isActivated: user.isActivated, liked:user.liked, likedPlaylists:user.likedPlaylists, picture:user.picture,subscriptions:user.subscriptions, subscribers:user.subscribers}
+        const userDto={ id: user._id, email: user.email,username:user.username, isActivated: user.isActivated, liked:user.liked, likedPlaylists:user.likedPlaylists, picture:user.picture,subscriptions:user.subscriptions, subscribers:user.subscribers, admin:user.admin}
         const tokens = this.generateTokens(userDto, values)
         await this.saveToken(user.id, tokens.refreshToken)
         return {...tokens,  user:userDto }
@@ -50,7 +50,7 @@ export class AuthService {
             throw new HttpException(`Unauthorized`, 401);
         }
         const user = await this.userService.findOne(userData.id)
-        const userDto={ id: user._id, email: user.email, username:user.username, isActivated: user.isActivated, liked:user.liked, likedPlaylists:user.likedPlaylists, picture:user.picture,subscriptions:user.subscriptions, subscribers:user.subscribers }
+        const userDto={ id: user._id, email: user.email, username:user.username, isActivated: user.isActivated, liked:user.liked, likedPlaylists:user.likedPlaylists, picture:user.picture,subscriptions:user.subscriptions, subscribers:user.subscribers,admin:user.admin }
         const tokens = this.generateTokens(userDto, values)
         await this.saveToken(user.id, tokens.refreshToken)
         return {...tokens, user:userDto}

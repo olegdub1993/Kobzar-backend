@@ -26,6 +26,9 @@ export class User {
 
     @Prop()
     activationLink: string;
+    
+    @Prop()
+    admin: boolean;
 
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] })
     subscriptions: User[];
