@@ -51,7 +51,12 @@ export class PlaylistService {
         })
     }
    async getOne(id: ObjectId): Promise<Playlist> {
-    const playlist = await this.playlistModel.findById(id).populate("tracks")
+    const playlist = await this.playlistModel.findById(id).populate({ 
+        path: 'tracks',
+        populate: {
+          path: 'artists',
+        } 
+     })
     // // let tracksWithIndex = albom.tracks.map((t,index)=>({...t,index})) 
     // let tracks=albom.tracks;
     // // albom.tracks.map((t,index)=>({...t,index})) 
@@ -62,7 +67,12 @@ export class PlaylistService {
    async getSearchedPlaylists(query: string): Promise<Playlist[]> {
     const playlists = await this.playlistModel.find({
         name: { $regex: new RegExp(query, "i") }
-    }).populate('tracks')
+    }).populate({ 
+        path: 'tracks',
+        populate: {
+          path: 'artists',
+        } 
+     })
     return playlists
    }
    async addTrackToPlaylist(userId, albomId, trackId): Promise<Playlist> {
@@ -80,7 +90,12 @@ export class PlaylistService {
         return playlist
     }
 async getAll(count = 100, offset = 0): Promise<Playlist[]> {
-    const playlists = await this.playlistModel.find().skip(offset).limit(count).populate("tracks")
+    const playlists = await this.playlistModel.find().skip(offset).limit(count).populate({ 
+        path: 'tracks',
+        populate: {
+          path: 'artists',
+        } 
+     })
     return playlists
 }
 async findSome(arrayOfId) {
