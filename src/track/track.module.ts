@@ -12,6 +12,7 @@ import { User,UserSchema } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { MailService } from './../mail/mail.service';
 import { Artist, ArtistSchema } from 'src/artist/schemas/artist.schema';
+import { ArtistService } from 'src/artist/artist.service';
 
 
 @Module({
@@ -23,6 +24,6 @@ import { Artist, ArtistSchema } from 'src/artist/schemas/artist.schema';
         MongooseModule.forFeature([{ name: Artist.name, schema: ArtistSchema }]),
     ],
     controllers: [TrackController],
-    providers: [TrackService, PlaylistService, UsersService, FileService, MailService]
+    providers: [TrackService, PlaylistService, UsersService, ArtistService, FileService, MailService]
 })
 export class TrackModule { }

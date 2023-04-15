@@ -35,4 +35,10 @@ export class ArtistService {
          })
         return artist
     }
+    async getSearchedArtists(query) {
+        const artists = await this.artistModel.find({
+            name: { $regex: new RegExp(query, "i") }
+        })
+        return artists
+}
 }

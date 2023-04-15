@@ -13,6 +13,7 @@ import { getAudioDurationInSeconds }  from 'get-audio-duration';
 import * as path from "path"
 import { UsersService } from './../users/users.service';
 import { Artist, ArtistDocument } from 'src/artist/schemas/artist.schema';
+import { ArtistService } from 'src/artist/artist.service';
 
 @Injectable()
 export class TrackService {
@@ -21,6 +22,7 @@ export class TrackService {
               @InjectModel(Artist.name) private artistModel: Model<ArtistDocument>,
          private fileService: FileService,
          private playlistService: PlaylistService,
+         private artistService: ArtistService,
          private usersService: UsersService
          ) { }
 
@@ -83,32 +85,50 @@ export class TrackService {
         if(type==="tracks"){
         const findedTracksByName = await this.trackModel.find({
             name: { $regex: new RegExp(query, "i") }
-        })
+        }).populate("artists")
         const findedTracksByArtist = await this.trackModel.find({
-            artist: { $regex: new RegExp(query, "i") }
-        })
+            artists: {
+              $in: await this.artistModel.find({
+                name: {
+                  $regex: new RegExp(query, "i")
+                }
+              }).distinct('_id')
+            }
+          }).populate('artists');
         findedTracksByArtist.forEach((x)=>{
             const track=findedTracksByName.find((y)=> x._id.toString()===y._id.toString())
             if(!track){
                 findedTracksByName.push(x)
             }
         })
-        return ({tracks: findedTracksByName,playlists:[],users:[]})
+        return ({tracks: findedTracksByName,playlists:[],users:[],artists:[]})
     }else if(type==="playlists"){
         const playlists = await this.playlistService.getSearchedPlaylists(query)
-         return ({tracks:[],playlists,users:[]})
+         return ({tracks:[],playlists,users:[],artists:[]})
+
+     } else if(type==="artists"){
+        const artists = await this.artistService.getSearchedArtists(query)
+         return ({tracks:[],playlists:[],users:[],artists})
 
      }else if(type==="users"){
         const users = await this.usersService.getSearchedUsers(query)
-         return ({tracks:[],playlists:[], users})
+         return ({tracks:[],playlists:[], artists:[], users})
      }
      else {
+        console.log(query)
         const findedTracksByName = await this.trackModel.find({
             name: { $regex: new RegExp(query, "i") }
-        })
+        }).populate("artists")
         const findedTracksByArtist = await this.trackModel.find({
-            artist: { $regex: new RegExp(query, "i") }
-        })
+            artists: {
+              $in: await this.artistModel.find({
+                name: {
+                  $regex: new RegExp(query, "i")
+                }
+              }).distinct('_id')
+            }
+          }).populate('artists');
+        console.log("findedTracksByArtist", findedTracksByArtist);
         findedTracksByArtist.forEach((x)=>{
             const track=findedTracksByName.find((y)=> x._id.toString()===y._id.toString())
             if(!track){
@@ -117,7 +137,8 @@ export class TrackService {
         })
         const playlists = await this.playlistService.getSearchedPlaylists(query)
         const users = await this.usersService.getSearchedUsers(query)
-        return ({tracks:findedTracksByName,playlists, users})
+        const artists = await this.artistService.getSearchedArtists(query)
+        return ({tracks:findedTracksByName,playlists, users, artists})
      }
 }
 }
