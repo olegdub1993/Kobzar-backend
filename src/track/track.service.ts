@@ -15,6 +15,9 @@ import { UsersService } from './../users/users.service';
 import { Artist, ArtistDocument } from 'src/artist/schemas/artist.schema';
 import { ArtistService } from 'src/artist/artist.service';
 
+import { translitDictLtoC, translitDictCtoL } from './dictionary';
+
+
 @Injectable()
 export class TrackService {
     constructor(@InjectModel(Track.name) private trackModel: Model<TrackDocument>,
@@ -79,22 +82,37 @@ export class TrackService {
         track.listens += 1
         track.save()
     }
-
-    async search(query: string,type:string): Promise<any> {
+   
+    async search(query: string,type:string): Promise<any> {  
+        const detectCharacterScript=(query) => {
+            const latinRegex = /[A-Za-z]/;
+            const cyrillicRegex = /[А-Яа-я]/;
+            if (latinRegex.test(query)) {
+              return 'latin';
+            } else if (cyrillicRegex.test(query)) {
+              return 'cyrillic';
+            } else {
+              return 'unknown';
+            }
+          }
+        let queryType= detectCharacterScript(query)
+        let translitDict =queryType==="latin"?translitDictLtoC:translitDictCtoL
+        const transliteratedQuery = query.toLowerCase().split('').map(char => translitDict[char] || char).join('');
         if(!query) return []
         if(type==="tracks"){
         const findedTracksByName = await this.trackModel.find({
             name: { $regex: new RegExp(query, "i") }
         }).populate("artists")
-        const findedTracksByArtist = await this.trackModel.find({
+        const findedTracksByArtist= await this.trackModel.find({
             artists: {
               $in: await this.artistModel.find({
                 name: {
-                  $regex: new RegExp(query, "i")
+                  $regex: new RegExp(`(${query}|${transliteratedQuery})`, 'i')
                 }
               }).distinct('_id')
             }
           }).populate('artists');
+
         findedTracksByArtist.forEach((x)=>{
             const track=findedTracksByName.find((y)=> x._id.toString()===y._id.toString())
             if(!track){
@@ -107,7 +125,7 @@ export class TrackService {
          return ({tracks:[],playlists,users:[],artists:[]})
 
      } else if(type==="artists"){
-        const artists = await this.artistService.getSearchedArtists(query)
+        const artists = await this.artistService.getSearchedArtists(query,transliteratedQuery)
          return ({tracks:[],playlists:[],users:[],artists})
 
      }else if(type==="users"){
@@ -115,7 +133,6 @@ export class TrackService {
          return ({tracks:[],playlists:[], artists:[], users})
      }
      else {
-        console.log(query)
         const findedTracksByName = await this.trackModel.find({
             name: { $regex: new RegExp(query, "i") }
         }).populate("artists")
@@ -123,12 +140,11 @@ export class TrackService {
             artists: {
               $in: await this.artistModel.find({
                 name: {
-                  $regex: new RegExp(query, "i")
+                  $regex:new RegExp(`(${query}|${transliteratedQuery})`, 'i'),
                 }
               }).distinct('_id')
             }
           }).populate('artists');
-        console.log("findedTracksByArtist", findedTracksByArtist);
         findedTracksByArtist.forEach((x)=>{
             const track=findedTracksByName.find((y)=> x._id.toString()===y._id.toString())
             if(!track){
@@ -137,7 +153,7 @@ export class TrackService {
         })
         const playlists = await this.playlistService.getSearchedPlaylists(query)
         const users = await this.usersService.getSearchedUsers(query)
-        const artists = await this.artistService.getSearchedArtists(query)
+        const artists = await this.artistService.getSearchedArtists(query,transliteratedQuery)
         return ({tracks:findedTracksByName,playlists, users, artists})
      }
 }

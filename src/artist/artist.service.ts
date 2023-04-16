@@ -35,9 +35,9 @@ export class ArtistService {
          })
         return artist
     }
-    async getSearchedArtists(query) {
+    async getSearchedArtists(query, transliteratedQuery) {
         const artists = await this.artistModel.find({
-            name: { $regex: new RegExp(query, "i") }
+            name: { $regex: new RegExp(`(${query}|${transliteratedQuery})`, 'i') }
         })
         return artists
 }
