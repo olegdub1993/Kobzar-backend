@@ -5,9 +5,11 @@ import { Model } from 'mongoose';
 import { Artist, ArtistDocument } from './schemas/artist.schema';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { FileService, FileType } from 'src/file/file.service';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
 @Injectable()
 export class ArtistService {
     constructor(@InjectModel(Artist.name) private artistModel: Model<ArtistDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
          private fileService: FileService,
          ) { }
 
@@ -40,5 +42,25 @@ export class ArtistService {
             name: { $regex: new RegExp(`(${query}|${transliteratedQuery})`, 'i') }
         })
         return artists
+}
+async createSubscription(userId: any, userId2: any,) {
+    const user = await this.userModel.findById(userId)
+    user.subscriptionsToArtists.push(userId2)
+    await user.save()
+    // const user2 = await this.artistModel.findById(userId2)
+    // user2.subscribers.push(userId)
+    // await user2.save()
+    // return user2._id
+    return userId2
+}
+async deleteSubscription(userId: any, userId2: any) {
+    const user = await this.userModel.findById(userId)
+    user.subscriptionsToArtists = user.subscriptionsToArtists.filter((subscription) => subscription.toString() !== userId2.toString())
+    await user.save()
+    // const user2 = await this.artistModel.findById(userId2)
+    // user2.subscribers = user2.subscribers.filter((subscriber) => subscriber.toString() !== userId.toString())
+    // await user2.save()
+    // return user2._id
+    return userId2
 }
 }

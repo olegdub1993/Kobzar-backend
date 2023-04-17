@@ -25,7 +25,7 @@ export class UsersService {
         return undefined
     }
     async getUser(id): Promise<any | undefined> {
-        const user = await (await this.userModel.findById(id).populate("subscriptions")).populate('subscribers')
+        const user = await this.userModel.findById(id).populate("subscriptions").populate('subscribers').populate('subscriptionsToArtists');
         let playlists = await this.playlistService.findSome(user.playlists)
         user.playlists = playlists
         return user
