@@ -5,6 +5,7 @@ import { Document, ObjectId } from 'mongoose';
 import * as mongoose from 'mongoose'
 import { Track } from 'src/track/schemas/track.schema';
 import { Playlist } from 'src/playlist/schemas/playlist.schema';
+import { Artist } from 'src/artist/schemas/artist.schema';
 export type UserDocument = User & Document;
 
 @Schema()
@@ -31,7 +32,10 @@ export class User {
     admin: boolean;
 
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] })
-    subscriptions: User[];
+    subscriptions: User[] ;
+    
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artist" }] })
+    subscriptionsToArtists: Artist[] ;
 
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] })
     subscribers: User[];
