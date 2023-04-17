@@ -104,7 +104,12 @@ export class UsersService {
     }
     async getLiked(userId: ObjectId, type: string) {
         if (type === "tracks") {
-            let user = await this.userModel.findById(userId).populate("liked")
+            let user = await this.userModel.findById(userId).populate({ 
+                path: 'liked',
+                populate: {
+                  path: 'artists',
+                } 
+             })
             return user.liked
         } else {
             let user = await this.userModel.findById(userId).populate("likedPlaylists")

@@ -101,7 +101,12 @@ async getAll(count = 100, offset = 0): Promise<Playlist[]> {
 async findSome(arrayOfId) {
     const playlists = await this.playlistModel.find({
         '_id': { $in: arrayOfId}
-    }).populate("tracks")
+    }).populate({ 
+        path: 'tracks',
+        populate: {
+          path: 'artists',
+        } 
+     })
     return playlists
 }
 
